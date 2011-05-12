@@ -1,6 +1,6 @@
 ## Interface: 40100
 ## Author: Epic
-## Version: 1.1.1
+## Version: 1.2
 ## Title: |cffC495DDTukui|r Spechelper
 ## Notes: helps switch modes and specs
 ## RequiredDeps: Tukui
