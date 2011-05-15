@@ -63,6 +63,7 @@ spec:CreatePanel("Default", 1, 20, "TOPRIGHT", UIParent, "TOPRIGHT", -32, -212)
 	local function Update(self, t)
 	int = int - t
 	if int > 0 then return end
+		if not GetPrimaryTalentTree() then spec.t:SetText("No talents") return end
 		local tree1, tree2, tree3, Tree = ActiveTalents()
 		local sTree1, sTree2, sTree3, sTree = UnactiveTalents()
 		name = select(2, GetTalentTabInfo(Tree))
