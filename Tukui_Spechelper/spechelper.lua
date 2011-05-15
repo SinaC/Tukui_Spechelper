@@ -3,8 +3,11 @@
 -----------------------------------------------
 local T, C, L = unpack(Tukui) -- Import: T - functions, constants, variables; C - config; L - locales
 
+-- colors
+local hoverovercolor = {.4, .4, .4}
 local cp = "|cff319f1b" -- +
 local cm = "|cff9a1212" -- -
+
 local dr, dg, db = unpack({ 0.4, 0.4, 0.4 })
 panelcolor = ("|cff%.2x%.2x%.2x"):format(dr * 255, dg * 255, db * 255)
 
@@ -36,17 +39,20 @@ end
 -- Spec
 -----------
 local spec = CreateFrame("Button", "Spec", UIParent)
-spec:CreatePanel("Default", 125, 20, "TOPRIGHT", UIParent, "TOPRIGHT", -32, -212)
+spec:CreatePanel("Default", 1, 20, "TOPRIGHT", UIParent, "TOPRIGHT", -32, -212)
 
 	-- Positioning
 	if TukuiMinimap then
-		spec:SetPoint("TOPLEFT", TukuiMinimap, "BOTTOMLEFT", 0, -3)	
+		spec:SetPoint("TOPLEFT", TukuiMinimap, "BOTTOMLEFT", 0, -3)
+		spec:SetPoint("TOPRIGHT", TukuiMinimap, "BOTTOMRIGHT", -23, -3)
 	end
-	if TukuiMinimapStatsLeft then
+	if TukuiMinimapStatsLeft and TukuiMinimapStatsRight then
 		spec:SetPoint("TOPLEFT", TukuiMinimapStatsLeft, "BOTTOMLEFT", 0, -3)
+		spec:SetPoint("TOPRIGHT", TukuiMinimapStatsRight, "BOTTOMRIGHT", -23, -3)
 	end
 	if RaidBuffReminder then
 		spec:SetPoint("TOPLEFT", RaidBuffReminder, "BOTTOMLEFT", 0, -3)
+		spec:SetPoint("TOPRIGHT", RaidBuffReminder, "BOTTOMRIGHT", -23, -3)
 	end	
 	-- Text
 	spec.t = spec:CreateFontString(spec, "OVERLAY")
@@ -103,7 +109,7 @@ toggle:CreatePanel("Default", 20, 20, "TOPLEFT", Spec, "TOPRIGHT", 3, 0)
 		toggle.t:SetPoint("CENTER")
 		toggle.t:SetFont(C["media"].uffont, C.datatext.fontsize)
 		toggle.t:SetText(cp.."+|r")
-		toggle:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(C.datatext.color)) end)
+		toggle:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(hoverovercolor)) end)
 		toggle:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.media.bordercolor)) end)
 		
 		toggle:SetScript("OnClick", function(self) 
@@ -127,7 +133,7 @@ dps.t:SetPoint("CENTER")
 dps.t:SetFont(C["media"].uffont, C.datatext.fontsize)
 dps.t:SetText("DPS")
 
-dps:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(C.datatext.color)) end)
+dps:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(hoverovercolor)) end)
 dps:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.media.bordercolor)) end)
 dps:SetAttribute("type", "macro")
 dps:SetAttribute("macrotext", "/dps")
@@ -142,7 +148,7 @@ heal.t:SetPoint("CENTER")
 heal.t:SetFont(C["media"].uffont, C.datatext.fontsize)
 heal.t:SetText("HEAL")
 
-heal:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(C.datatext.color)) end)
+heal:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(hoverovercolor)) end)
 heal:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.media.bordercolor)) end)
 heal:SetAttribute("type", "macro")
 heal:SetAttribute("macrotext", "/heal")
@@ -157,7 +163,7 @@ binds.t:SetPoint("CENTER")
 binds.t:SetFont(C["media"].uffont, C.datatext.fontsize)
 binds.t:SetText("Bind")
 
-binds:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(C.datatext.color)) end)
+binds:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(hoverovercolor)) end)
 binds:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.media.bordercolor)) end)
 binds:SetAttribute("type", "macro")
 binds:SetAttribute("macrotext", "/bindkey")
@@ -173,7 +179,7 @@ mui.t:SetPoint("CENTER")
 mui.t:SetFont(C["media"].uffont, C.datatext.fontsize)
 mui.t:SetText("Move UI")
 
-mui:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(C.datatext.color)) end)
+mui:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(hoverovercolor)) end)
 mui:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.media.bordercolor)) end)
 mui:SetAttribute("type", "macro")
 mui:SetAttribute("macrotext", "/moveui")
@@ -221,7 +227,7 @@ for i = 1, 10 do
 		gearSets[i].texture:SetTexture(select(2, GetEquipmentSetInfo(i)))
 
 		gearSets[i]:SetScript("OnClick", function(self) UseEquipmentSet(GetEquipmentSetInfo(i)) end)
-		gearSets[i]:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(C.datatext.color)) end)
+		gearSets[i]:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(hoverovercolor)) end)
 		gearSets[i]:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.media.bordercolor)) end)
 	end)
 end	
