@@ -7,9 +7,13 @@ local T, C, L = unpack(Tukui) -- Import: T - functions, constants, variables; C 
 local hoverovercolor = {.4, .4, .4}
 local cp = "|cff319f1b" -- +
 local cm = "|cff9a1212" -- -
-
 local dr, dg, db = unpack({ 0.4, 0.4, 0.4 })
 panelcolor = ("|cff%.2x%.2x%.2x"):format(dr * 255, dg * 255, db * 255)
+
+-- Gear Settings
+local Autogearswap = true
+local set1 = 1 -- this is the gear set that gets equiped with your primary spec.
+local set2 = 2 -- this is the gear set that gets equiped with your secondary spec.
 
 --functions
 local function HasDualSpec() if GetNumTalentGroups() > 1 then return true end end
@@ -232,17 +236,14 @@ for i = 1, 10 do
 		gearSets[i]:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.media.bordercolor)) end)
 	end)
 end	
-
-
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
+if Autogearswap == true then
+	gearsetfunc = CreateFrame("Frame", "gearSetfunc", UIParent)
+	gearsetfunc:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
+	gearsetfunc:SetScript("OnEvent", function(self, event)
+		if GetActiveTalentGroup() == 1 then
+			UseEquipmentSet(GetEquipmentSetInfo(set1))
+		else
+			UseEquipmentSet(GetEquipmentSetInfo(set2))
+		end
+	end) 
+end
