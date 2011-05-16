@@ -1,8 +1,8 @@
 ## Interface: 40100
 ## Author: Epic
-## Version: 1.2
+## Version: 1.3
 ## Title: |cffC495DDTukui|r Spechelper
-## Notes: helps switch modes and specs
+## Notes: helps switch modes and specs and gear!
 ## RequiredDeps: Tukui
 
 spechelper.lua
