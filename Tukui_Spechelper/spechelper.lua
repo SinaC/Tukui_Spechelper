@@ -69,13 +69,14 @@ spec:CreatePanel("Default", 1, 20, "TOPRIGHT", UIParent, "TOPRIGHT", -32, -212)
 	if int > 0 then return end
 		if not GetPrimaryTalentTree() then spec.t:SetText("No talents") return end
 		local tree1, tree2, tree3, Tree = ActiveTalents()
-		local sTree1, sTree2, sTree3, sTree = UnactiveTalents()
 		name = select(2, GetTalentTabInfo(Tree))
-		sName = select(2, GetTalentTabInfo(sTree))
 		spec.t:SetText(name.." "..panelcolor..tree1.."/"..tree2.."/"..tree3)
-		spec:SetScript("OnEnter", function() spec.t:SetText(cm..sName.." "..panelcolor..sTree1.."/"..sTree2.."/"..sTree3) end)
-		spec:SetScript("OnLeave", function() spec.t:SetText(name.." "..panelcolor..tree1.."/"..tree2.."/"..tree3) end)
-
+		if HasDualSpec() then
+			local sTree1, sTree2, sTree3, sTree = UnactiveTalents()
+			sName = select(2, GetTalentTabInfo(sTree))
+			spec:SetScript("OnEnter", function() spec.t:SetText(cm..sName.." "..panelcolor..sTree1.."/"..sTree2.."/"..sTree3) end)
+			spec:SetScript("OnLeave", function() spec.t:SetText(name.." "..panelcolor..tree1.."/"..tree2.."/"..tree3) end)
+		end
 		int = 1
 		self:SetScript("OnUpdate", nil)
 	end
@@ -230,10 +231,17 @@ for i = 1, 10 do
 		gearSets[i].texture:SetPoint("TOPLEFT", gearSets[i] ,"TOPLEFT", 2, -2)
 		gearSets[i].texture:SetPoint("BOTTOMRIGHT", gearSets[i] ,"BOTTOMRIGHT", -2, 2)
 		gearSets[i].texture:SetTexture(select(2, GetEquipmentSetInfo(i)))
-
+		
 		gearSets[i]:SetScript("OnClick", function(self) UseEquipmentSet(GetEquipmentSetInfo(i)) end)
 		gearSets[i]:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(hoverovercolor)) end)
 		gearSets[i]:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.media.bordercolor)) end)
+		
+		gearSets[set1]:SetBackdropBorderColor(0,1,0)
+		gearSets[set2]:SetBackdropBorderColor(1,0,0)
+		gearSets[set1]:SetScript("OnEnter", nil)
+		gearSets[set1]:SetScript("OnLeave", nil)
+		gearSets[set2]:SetScript("OnEnter", nil)
+		gearSets[set2]:SetScript("OnLeave", nil)
 	end)
 end	
 if Autogearswap == true then
