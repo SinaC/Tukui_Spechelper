@@ -11,9 +11,10 @@ local dr, dg, db = unpack({ 0.4, 0.4, 0.4 })
 panelcolor = ("|cff%.2x%.2x%.2x"):format(dr * 255, dg * 255, db * 255)
 
 -- Gear Settings
-local Autogearswap = true
-local set1 = 1 -- this is the gear set that gets equiped with your primary spec.
-local set2 = 2 -- this is the gear set that gets equiped with your secondary spec.
+local Enablegear = true -- herp
+local Autogearswap = true -- derp
+local set1 = 1 -- this is the gear set that gets equiped with your primary spec. (must be the NUMBER from 1-10)
+local set2 = 2 -- this is the gear set that gets equiped with your secondary spec.(must be the NUMBER from 1-10)
 
 --functions
 local function HasDualSpec() if GetNumTalentGroups() > 1 then return true end end
@@ -38,12 +39,16 @@ local function UnactiveTalents()
 	local sTree = GetPrimaryTalentTree(false,false,(secondary))
 	return sTree1, sTree2, sTree3, sTree
 end
-local function AutoGear()
+
+local function AutoGear(set1, set2)
+	local name1 = GetEquipmentSetInfo(set1)
+	local name2 = GetEquipmentSetInfo(set2)
 	if GetActiveTalentGroup() == 1 then
-		UseEquipmentSet(GetEquipmentSetInfo(set1))
+		UseEquipmentSet(name1)
 	else
-		UseEquipmentSet(GetEquipmentSetInfo(set2))
+		UseEquipmentSet(name2)
 	end
+	print(name1.." "..name2)
 end
 
 -----------
@@ -200,6 +205,7 @@ mui:SetAttribute("macrotext", "/moveui")
 ------------------		
 -- Gear switching
 ------------------
+if Enablegear == true then
 local gearSets = CreateFrame("Frame", "gearSets", DPS)	
 for i = 1, 10 do
 		gearSets[i] = CreateFrame("Button", "gearSets"..i, DPS)
@@ -243,18 +249,27 @@ for i = 1, 10 do
 		gearSets[i]:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(hoverovercolor)) end)
 		gearSets[i]:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.media.bordercolor)) end)
 		
-		gearSets[set1]:SetBackdropBorderColor(0,1,0)
-		gearSets[set2]:SetBackdropBorderColor(1,0,0)
-		gearSets[set1]:SetScript("OnEnter", nil)
-		gearSets[set1]:SetScript("OnLeave", nil)
-		gearSets[set2]:SetScript("OnEnter", nil)
-		gearSets[set2]:SetScript("OnLeave", nil)
+		gearSets[1]:SetBackdropBorderColor(0,1,0)
+		gearSets[2]:SetBackdropBorderColor(1,0,0)
+		gearSets[1]:SetScript("OnEnter", nil)
+		gearSets[1]:SetScript("OnLeave", nil)
+		gearSets[2]:SetScript("OnEnter", nil)
+		gearSets[2]:SetScript("OnLeave", nil)
 	end)
 end	
+-- Auto Gear swapping
 if Autogearswap == true then
 	gearsetfunc = CreateFrame("Frame", "gearSetfunc", UIParent)
+	local function OnEvent(self, event)
+		if event == "PLAYER_ENTERING_WORLD" then
+			self:UnregisterEvent("PLAYER_ENTERING_WORLD")
+		else
+			AutoGear(set1, set2) 
+		end
+	end
+	
+	gearsetfunc:RegisterEvent("PLAYER_ENTERING_WORLD")
 	gearsetfunc:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
-	gearsetfunc:SetScript("OnEvent", function(self, event)
-	AutoGear()
-	end) 
+	gearsetfunc:SetScript("OnEvent", OnEvent)
+end
 end
