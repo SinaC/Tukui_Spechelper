@@ -48,7 +48,6 @@ local function AutoGear(set1, set2)
 	else
 		UseEquipmentSet(name2)
 	end
-	print(name1.." "..name2)
 end
 
 -----------
@@ -109,8 +108,12 @@ spec:CreatePanel("Default", 1, 20, "TOPRIGHT", UIParent, "TOPRIGHT", -32, -212)
 
 	spec:SetScript("OnClick", function(self) 
 	local i = GetActiveTalentGroup()
+	if IsModifierKeyDown() then
+		ToggleTalentFrame()
+	else
 		if i == 1 then SetActiveTalentGroup(2) end
 		if i == 2 then SetActiveTalentGroup(1) end
+	end
 	end)
 
 ----------------
