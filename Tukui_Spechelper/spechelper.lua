@@ -12,7 +12,7 @@ panelcolor = ("|cff%.2x%.2x%.2x"):format(dr * 255, dg * 255, db * 255)
 
 -- Gear Settings
 local Enablegear = true -- herp
-local Autogearswap = true -- derp
+local Autogearswap = false -- derp
 local set1 = 1 -- this is the gear set that gets equiped with your primary spec. (must be the NUMBER from 1-10)
 local set2 = 2 -- this is the gear set that gets equiped with your secondary spec.(must be the NUMBER from 1-10)
 
@@ -44,9 +44,9 @@ local function AutoGear(set1, set2)
 	local name1 = GetEquipmentSetInfo(set1)
 	local name2 = GetEquipmentSetInfo(set2)
 	if GetActiveTalentGroup() == 1 then
-		UseEquipmentSet(name1)
+		if name1 then UseEquipmentSet(name1) end
 	else
-		UseEquipmentSet(name2)
+		if name2 then UseEquipmentSet(name2) end
 	end
 end
 
@@ -115,6 +115,10 @@ spec:CreatePanel("Default", 1, 20, "TOPRIGHT", UIParent, "TOPRIGHT", -32, -212)
 		if i == 2 then SetActiveTalentGroup(1) end
 	end
 	end)
+	
+	if C.general.colorscheme == true then
+		spec:SetBackdropColor(unpack(C.general.color))
+	end
 
 ----------------
 --Toggle Button
@@ -143,6 +147,10 @@ toggle:CreatePanel("Default", 20, 20, "TOPLEFT", Spec, "TOPRIGHT", 3, 0)
 			end
 		end)
 		
+	if C.general.colorscheme == true then
+		toggle:SetBackdropColor(unpack(C.general.color))
+	end
+		
 --------------
 -- DPS layout
 --------------
@@ -158,6 +166,10 @@ dps:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(hover
 dps:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.media.bordercolor)) end)
 dps:SetAttribute("type", "macro")
 dps:SetAttribute("macrotext", "/dps")
+
+	if C.general.colorscheme == true then
+		dps:SetBackdropColor(unpack(C.general.color))
+	end
 ---------------	
 -- Heal layout
 ---------------
@@ -173,6 +185,10 @@ heal:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(hove
 heal:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.media.bordercolor)) end)
 heal:SetAttribute("type", "macro")
 heal:SetAttribute("macrotext", "/heal")
+
+	if C.general.colorscheme == true then
+		heal:SetBackdropColor(unpack(C.general.color))
+	end
 ------------
 --Key Binds
 ------------
@@ -188,7 +204,10 @@ binds:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(hov
 binds:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.media.bordercolor)) end)
 binds:SetAttribute("type", "macro")
 binds:SetAttribute("macrotext", "/bindkey")
-		
+
+	if C.general.colorscheme == true then
+		binds:SetBackdropColor(unpack(C.general.color))
+	end		
 ------------
 --Move UI
 ------------
@@ -205,6 +224,9 @@ mui:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.med
 mui:SetAttribute("type", "macro")
 mui:SetAttribute("macrotext", "/moveui")
 
+	if C.general.colorscheme == true then
+		mui:SetBackdropColor(unpack(C.general.color))
+	end
 ------------------		
 -- Gear switching
 ------------------
@@ -252,12 +274,14 @@ for i = 1, 10 do
 		gearSets[i]:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(hoverovercolor)) end)
 		gearSets[i]:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.media.bordercolor)) end)
 		
-		gearSets[1]:SetBackdropBorderColor(0,1,0)
-		gearSets[2]:SetBackdropBorderColor(1,0,0)
-		gearSets[1]:SetScript("OnEnter", nil)
-		gearSets[1]:SetScript("OnLeave", nil)
-		gearSets[2]:SetScript("OnEnter", nil)
-		gearSets[2]:SetScript("OnLeave", nil)
+		if Autogearswap == true then
+			gearSets[1]:SetBackdropBorderColor(0,1,0)
+			gearSets[2]:SetBackdropBorderColor(1,0,0)
+			gearSets[1]:SetScript("OnEnter", nil)
+			gearSets[1]:SetScript("OnLeave", nil)
+			gearSets[2]:SetScript("OnEnter", nil)
+			gearSets[2]:SetScript("OnLeave", nil)
+		end
 	end)
 end	
 -- Auto Gear swapping
