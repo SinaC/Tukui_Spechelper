@@ -71,7 +71,16 @@ local function SpecChangeCastbar(self)
 	specbar:Point("TOPLEFT", self, "BOTTOMLEFT", 0, -3)
 	specbar:Point("TOPRIGHT", self, "BOTTOMRIGHT", 23, -3)
 	specbar:Height(19)
-	specbar:CreateBorder(false, true)
+		local border = CreateFrame("Frame", specbar:GetName() and specbar:GetName() .. "InnerBorder" or nil, specbar)
+		border:Point("TOPLEFT", -T.mult, T.mult)
+		border:Point("BOTTOMRIGHT", T.mult, -T.mult)
+		border:SetBackdrop({
+			edgeFile = C["media"].blank, 
+			edgeSize = T.mult, 
+			insets = { left = T.mult, right = T.mult, top = T.mult, bottom = T.mult }
+		})
+		border:SetBackdropBorderColor(unpack(C["media"].backdropcolor))
+		specbar.iborder = border
 	
 	specbar:SetStatusBarTexture(C.media.normTex)
 	specbar:GetStatusBarTexture():SetHorizTile(false)
