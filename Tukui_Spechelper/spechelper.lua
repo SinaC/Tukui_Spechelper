@@ -88,8 +88,9 @@ local function SpecChangeCastbar(self)
 	specbar:SetBackdropColor(.2, .2, .2, 1)
 	specbar:SetMinMaxValues(0, 5)
 	
-	specbar.text = T.SetFontString(specbar, C.datatext.font, C.datatext.fontsize)
-	specbar.text:Point("CENTER", specbar, "CENTER", 0, 0)		
+	specbar.t = specbar:CreateFontString(specbar, "OVERLAY")
+	specbar.t:Point("CENTER", specbar, "CENTER", 0, 0)	
+	specbar.t:SetFont(C["media"].uffont, C.datatext.fontsize)	
 	
 	specbar:RegisterEvent("UNIT_SPELLCAST_START")
 	specbar:RegisterEvent("UNIT_SPELLCAST_STOP")
@@ -100,7 +101,7 @@ local function SpecChangeCastbar(self)
 			local val = time-(startTime/1000) or 0
 			self:SetAlpha(1)
 			self:SetValue(val)
-			specbar.text:SetText(spell)
+			specbar.t:SetText(spell)
 			
 			TukuiPlayerCastBar:SetAlpha(0)
 		else
@@ -120,6 +121,10 @@ spec:CreatePanel("Default", 1, 20, "TOPRIGHT", UIParent, "TOPRIGHT", -32, -212)
 	if TukuiMinimap then
 		spec:SetPoint("TOPLEFT", TukuiMinimap, "BOTTOMLEFT", 0, -3)
 		spec:SetPoint("TOPRIGHT", TukuiMinimap, "BOTTOMRIGHT", -23, -3)
+	end
+	if TukuiMinimapStatsLeft then
+		spec:SetPoint("TOPLEFT", TukuiMinimapStatsLeft, "BOTTOMLEFT", 0, -3)
+		spec:SetPoint("TOPRIGHT", TukuiMinimapStatsRight, "BOTTOMRIGHT", -23, -3)
 	end
 	
 	-- Text
