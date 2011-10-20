@@ -1,8 +1,10 @@
 ## Interface: 40200
+## Version: 1.5
 ## Author: Epic
-## Version: 1.3
-## Title: |cffC495DDTukui|r Spechelper
-## Notes: helps switch modes and specs and gear!
+## Editor: SinaC
+## Title: |cffC495DDTukui|r Spec Helper
+## Notes: Helps switch modes and specs and gear!
+## URL: https://github.com/SinaC/Tukui_Raid_Healing
 ## RequiredDeps: Tukui
 
-spechelper.lua
+Tukui_SpecHelper.lua
