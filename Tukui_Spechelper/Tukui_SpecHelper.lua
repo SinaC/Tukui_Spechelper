@@ -1,3 +1,6 @@
+-- TODO
+-- mouseover equipement set, display set name as tooltip
+
 -----------------------------------------------
 -- Spec Helper, by EPIC edited by SinaC
 -----------------------------------------------
@@ -186,11 +189,11 @@ if raidUtilityFrame then
 	SetAnchor(spec)
 else
 	if TukuiMinimapStatsLeft then
-		print("->TukuiMinimapStatsLeft")
+		--print("->TukuiMinimapStatsLeft")
 		spec:SetPoint("TOPLEFT", TukuiMinimapStatsLeft, "BOTTOMLEFT", 0, -3)
 		spec:SetPoint("TOPRIGHT", TukuiMinimapStatsRight, "BOTTOMRIGHT", -23, -3)
 	elseif TukuiMinimap then
-		print("->TukuiMinimap")
+		--print("->TukuiMinimap")
 		spec:SetPoint("TOPLEFT", TukuiMinimap, "BOTTOMLEFT", 0, -3)
 		spec:SetPoint("TOPRIGHT", TukuiMinimap, "BOTTOMRIGHT", -23, -3)
 	else
@@ -327,8 +330,21 @@ if EnableGear == true then
 		gearSets[i].texture:SetPoint("TOPLEFT", gearSets[i] ,"TOPLEFT", 2, -2)
 		gearSets[i].texture:SetPoint("BOTTOMRIGHT", gearSets[i] ,"BOTTOMRIGHT", -2, 2)
 
-		gearSets[i]:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(hoverovercolor)) end)
-		gearSets[i]:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.media.bordercolor)) end)
+		gearSets[i].setID = i
+
+		gearSets[i]:SetScript("OnEnter", function(self)
+			self:SetBackdropBorderColor(unpack(hoverovercolor))
+			GameTooltip:SetOwner(self, "ANCHOR_TOP", 0, T.Scale(6))
+			GameTooltip:ClearAllPoints()
+			--GameTooltip:SetPoint("BOTTOM", self, "TOP", 0, T.mult)
+			local name, _ = GetEquipmentSetInfo(self.setID)
+			GameTooltip:AddLine(name, 1, 1, 1)
+			GameTooltip:Show()
+		end)
+		gearSets[i]:SetScript("OnLeave", function(self)
+			self:SetBackdropBorderColor(unpack(C.media.bordercolor))
+			GameTooltip:Hide()
+		end)
 
 		gearSets:RegisterEvent("PLAYER_ENTERING_WORLD")
 		gearSets:RegisterEvent("EQUIPMENT_SETS_CHANGED")
