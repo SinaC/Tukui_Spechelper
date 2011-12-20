@@ -1,6 +1,3 @@
--- TODO
--- mouseover equipement set, display set name as tooltip
-
 -----------------------------------------------
 -- Spec Helper, by EPIC edited by SinaC
 -----------------------------------------------
@@ -8,8 +5,8 @@ local T, C, L = unpack(Tukui) -- Import: T - functions, constants, variables; C 
 
 -- colors
 local hoverovercolor = {.4, .4, .4}
-local cp = "|cff319f1b" -- +
-local cm = "|cff9a1212" -- -
+local cp = "|cff319f1b"
+local cm = "|cff9a1212"
 local dr, dg, db = unpack({ 0.4, 0.4, 0.4 })
 local panelcolor = ("|cff%.2x%.2x%.2x"):format(dr * 255, dg * 255, db * 255)
 
@@ -136,68 +133,52 @@ end
 -- Spec
 -----------
 local spec = CreateFrame("Button", "Tukui_Spechelper", UIParent)
-spec:CreatePanel("Default", 1, 20, "TOPRIGHT", UIParent, "TOPRIGHT", -32, -212)
+spec:CreatePanel("Default", 10, 20, "TOPRIGHT", UIParent, "TOPRIGHT", -32, -212)
 
+spec:RegisterEvent("PLAYER_ENTERING_WORLD")
 -- Anchoring
 -- if TukuiRaidUtilityShowButton is shown, anchor it
--- else if TukuiRaidUtility is shown, anchor it
+-- else if TukuiRaidUtilityClose is shown, anchor it
 -- else if TukuiMinimapStatsLeft, anchor it
 -- else if TukuiMinimap, anchor it
 -- else, anchor to center of screen
 
--- Get raid utility frame
-local raidUtilityFrame = _G["TukuiRaidUtility"]
-
-if raidUtilityFrame then
-	local raidUtilityShowButton = _G["TukuiRaidUtilityShowButton"]
-	local raidUtilityCloseButton = _G["TukuiRaidUtilityCloseButton"]
-
-	-- Anchoring function
-	local function SetAnchor(self)
-		--print("anchoring   "..tostring(raidUtilityShowButton)..":"..tostring(raidUtilityShowButton:IsShown()).."   "..tostring(raidUtilityCloseButton)..":"..tostring(raidUtilityCloseButton:IsShown()).."  "..tostring(raidUtilityFrame)..":"..tostring(raidUtilityFrame:IsShown()))
-		if raidUtilityShowButton and raidUtilityShowButton:IsShown() then
-			--print("->TukuiRaidUtilityShowButton")
-			spec:SetPoint("TOPLEFT", raidUtilityShowButton, "BOTTOMLEFT", 0, -3)
-			spec:SetPoint("TOPRIGHT", raidUtilityShowButton, "BOTTOMRIGHT", -23, -3)
-		elseif raidUtilityFrame and raidUtilityFrame:IsShown() then
-			--print("->TukuiRaidUtilityCloseButton")
-			spec:SetPoint("TOPLEFT", raidUtilityCloseButton, "BOTTOMLEFT", 0, -3)
-			spec:SetPoint("TOPRIGHT", raidUtilityCloseButton, "BOTTOMRIGHT", -23, -3)
-		elseif TukuiMinimapStatsLeft then
-			--print("->TukuiMinimapStatsLeft")
-			spec:SetPoint("TOPLEFT", TukuiMinimapStatsLeft, "BOTTOMLEFT", 0, -3)
-			spec:SetPoint("TOPRIGHT", TukuiMinimapStatsRight, "BOTTOMRIGHT", -23, -3)
+local function AnchorSpec()
+	-- Get raid utility frame
+	local raidUtilityFrame = _G["TukuiRaidUtility"]
+	if not raidUtilityFrame then
+		if TukuiMinimapStatsLeft then
+			spec:Point("TOPLEFT", TukuiMinimapStatsLeft, "BOTTOMLEFT", 0, -3)
+			spec:Point("TOPRIGHT", TukuiMinimapStatsRight, "BOTTOMRIGHT", -23, -3)
 		elseif TukuiMinimap then
-			--print("->TukuiMinimap")
-			spec:SetPoint("TOPLEFT", TukuiMinimap, "BOTTOMLEFT", 0, -3)
-			spec:SetPoint("TOPRIGHT", TukuiMinimap, "BOTTOMRIGHT", -23, -3)
+			spec:Point("TOPLEFT", TukuiMinimap, "BOTTOMLEFT", 0, -3)
+			spec:Point("TOPRIGHT", TukuiMinimap, "BOTTOMRIGHT", -23, -3)
 		else
-			spec:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+			spec:Point("CENTER", UIParent, "CENTER", 0, 0)
 		end
-	end
-	
-	-- When TukuiRaidUtility is visible, anchor it else anchor another frame
-	if raidUtilityFrame then
-		raidUtilityFrame:HookScript("OnShow", SetAnchor)
-		raidUtilityFrame:HookScript("OnHide", SetAnchor)
-	end
-	if raidUtilityShowButton then
-		raidUtilityShowButton:HookScript("OnShow", SetAnchor)
-		raidUtilityShowButton:HookScript("OnHide", SetAnchor)
-	end
-	
-	SetAnchor(spec)
-else
-	if TukuiMinimapStatsLeft then
-		--print("->TukuiMinimapStatsLeft")
-		spec:SetPoint("TOPLEFT", TukuiMinimapStatsLeft, "BOTTOMLEFT", 0, -3)
-		spec:SetPoint("TOPRIGHT", TukuiMinimapStatsRight, "BOTTOMRIGHT", -23, -3)
-	elseif TukuiMinimap then
-		--print("->TukuiMinimap")
-		spec:SetPoint("TOPLEFT", TukuiMinimap, "BOTTOMLEFT", 0, -3)
-		spec:SetPoint("TOPRIGHT", TukuiMinimap, "BOTTOMRIGHT", -23, -3)
 	else
-		spec:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+		local raidUtilityShowButton = _G["TukuiRaidUtilityShowButton"]
+		local raidUtilityCloseButton = _G["TukuiRaidUtilityCloseButton"]
+		spec:Point("TOPLEFT", TukuiMinimapStatsLeft, "BOTTOMLEFT", 0, -3)
+		spec:Point("TOPRIGHT", TukuiMinimapStatsRight, "BOTTOMRIGHT", -23, -3)
+
+		if raidUtilityShowButton and raidUtilityCloseButton then
+			-- Anchoring function
+			local function SetAnchor(self)
+				if raidUtilityShowButton:IsShown() then
+					spec:Point("TOPLEFT", raidUtilityShowButton, "BOTTOMLEFT", 0, -3)
+					spec:Point("TOPRIGHT", raidUtilityShowButton, "BOTTOMRIGHT", -23, -3)
+				elseif raidUtilityCloseButton:IsShown() then
+					spec:Point("TOPLEFT", raidUtilityCloseButton, "BOTTOMLEFT", 0, -3)
+					spec:Point("TOPRIGHT", raidUtilityCloseButton, "BOTTOMRIGHT", -23, -3)
+				else
+					spec:Point("CENTER", UIParent, "CENTER", 0, 0)
+				end
+			end
+
+			raidUtilityShowButton:HookScript("OnShow", SetAnchor)
+			raidUtilityShowButton:HookScript("OnHide", SetAnchor)
+		end
 	end
 end
 
@@ -211,6 +192,10 @@ spec:RegisterEvent("PLAYER_ENTERING_WORLD")
 spec:RegisterEvent("CHARACTER_POINTS_CHANGED")
 spec:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
 spec:SetScript("OnEvent", function(self, event)
+	if event == "PLAYER_ENTERING_WORLD" then
+		AnchorSpec()
+		spec:UnregisterEvent("PLAYER_ENTERING_WORLD")
+	end
 	if not GetPrimaryTalentTree() then spec.t:SetText("No talents") return end
 	local tree1, tree2, tree3, Tree = ActiveTalents()
 	local name = select(2, GetTalentTabInfo(Tree))
@@ -330,49 +315,35 @@ if EnableGear == true then
 		gearSets[i].texture:SetPoint("TOPLEFT", gearSets[i] ,"TOPLEFT", 2, -2)
 		gearSets[i].texture:SetPoint("BOTTOMRIGHT", gearSets[i] ,"BOTTOMRIGHT", -2, 2)
 
-		gearSets[i].setID = i
-
-		gearSets[i]:SetScript("OnEnter", function(self)
-			self:SetBackdropBorderColor(unpack(hoverovercolor))
-			GameTooltip:SetOwner(self, "ANCHOR_TOP", 0, T.Scale(6))
-			GameTooltip:ClearAllPoints()
-			--GameTooltip:SetPoint("BOTTOM", self, "TOP", 0, T.mult)
-			local name, _ = GetEquipmentSetInfo(self.setID)
-			GameTooltip:AddLine(name, 1, 1, 1)
-			GameTooltip:Show()
-		end)
-		gearSets[i]:SetScript("OnLeave", function(self)
-			self:SetBackdropBorderColor(unpack(C.media.bordercolor))
-			GameTooltip:Hide()
-		end)
-
-		gearSets:RegisterEvent("PLAYER_ENTERING_WORLD")
-		gearSets:RegisterEvent("EQUIPMENT_SETS_CHANGED")
-		gearSets:SetScript("OnEvent", function(self, event)
-			local numSets = GetNumEquipmentSets()
-			for i = 1, numSets, 1 do
-				local name, icon = GetEquipmentSetInfo(i)
-				gearSets[i]:SetScript("OnClick", function(self) UseEquipmentSet(name) end)
-				gearSets[i].texture:SetTexture(icon)
-				gearSets[i]:Show()
-			end
-			for i = numSets+1, MaxSets, 1 do
-				gearSets[i]:Hide()
-			end
-
-			if AutoGearSwap == true then
-				gearSets[set1]:SetBackdropBorderColor(0,1,0)
-				gearSets[set1]:SetScript("OnEnter", nil)
-				gearSets[set1]:SetScript("OnLeave", nil)
-				gearSets[set2]:SetBackdropBorderColor(1,0,0)
-				gearSets[set2]:SetScript("OnEnter", nil)
-				gearSets[set2]:SetScript("OnLeave", nil)
-			end
-		end)
+		gearSets[i]:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(hoverovercolor)) end)
+		gearSets[i]:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.media.bordercolor)) end)
 	end
+	gearSets:RegisterEvent("PLAYER_ENTERING_WORLD")
+	gearSets:RegisterEvent("EQUIPMENT_SETS_CHANGED")
+	gearSets:SetScript("OnEvent", function(self, event)
+		local numSets = math.min(GetNumEquipmentSets(), MaxSets)
+		for i = 1, numSets, 1 do
+			local name, icon = GetEquipmentSetInfo(i)
+			gearSets[i]:SetScript("OnClick", function(self) UseEquipmentSet(name) end)
+			gearSets[i].texture:SetTexture(icon)
+			gearSets[i]:Show()
+		end
+		for i = numSets+1, MaxSets, 1 do
+			gearSets[i]:Hide()
+		end
+
+		if AutoGearSwap == true then
+			gearSets[set1]:SetBackdropBorderColor(0,1,0)
+			gearSets[set1]:SetScript("OnEnter", nil)
+			gearSets[set1]:SetScript("OnLeave", nil)
+			gearSets[set2]:SetBackdropBorderColor(1,0,0)
+			gearSets[set2]:SetScript("OnEnter", nil)
+			gearSets[set2]:SetScript("OnLeave", nil)
+		end
+	end)
 
 	if AutoGearSwap == true then
-		gearsetfunc = CreateFrame("Frame", "gearSetfunc", UIParent)
+		local gearsetfunc = CreateFrame("Frame", "gearSetfunc", UIParent)
 
 		gearsetfunc:RegisterEvent("PLAYER_ENTERING_WORLD")
 		gearsetfunc:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
