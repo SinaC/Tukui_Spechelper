@@ -135,7 +135,6 @@ end
 local spec = CreateFrame("Button", "Tukui_Spechelper", UIParent)
 spec:CreatePanel("Default", 10, 20, "TOPRIGHT", UIParent, "TOPRIGHT", -32, -212)
 
-spec:RegisterEvent("PLAYER_ENTERING_WORLD")
 -- Anchoring
 -- if TukuiRaidUtilityShowButton is shown, anchor it
 -- else if TukuiRaidUtilityClose is shown, anchor it
@@ -146,38 +145,37 @@ spec:RegisterEvent("PLAYER_ENTERING_WORLD")
 local function AnchorSpec()
 	-- Get raid utility frame
 	local raidUtilityFrame = _G["TukuiRaidUtility"]
-	if not raidUtilityFrame then
-		if TukuiMinimapStatsLeft then
-			spec:Point("TOPLEFT", TukuiMinimapStatsLeft, "BOTTOMLEFT", 0, -3)
-			spec:Point("TOPRIGHT", TukuiMinimapStatsRight, "BOTTOMRIGHT", -23, -3)
-		elseif TukuiMinimap then
-			spec:Point("TOPLEFT", TukuiMinimap, "BOTTOMLEFT", 0, -3)
-			spec:Point("TOPRIGHT", TukuiMinimap, "BOTTOMRIGHT", -23, -3)
-		else
-			spec:Point("CENTER", UIParent, "CENTER", 0, 0)
-		end
-	else
-		local raidUtilityShowButton = _G["TukuiRaidUtilityShowButton"]
-		local raidUtilityCloseButton = _G["TukuiRaidUtilityCloseButton"]
+	-- default pos
+	if TukuiMinimapStatsLeft then
+		spec:ClearAllPoints()
 		spec:Point("TOPLEFT", TukuiMinimapStatsLeft, "BOTTOMLEFT", 0, -3)
 		spec:Point("TOPRIGHT", TukuiMinimapStatsRight, "BOTTOMRIGHT", -23, -3)
+	elseif TukuiMinimap then
+		spec:ClearAllPoints()
+		spec:Point("TOPLEFT", TukuiMinimap, "BOTTOMLEFT", 0, -3)
+		spec:Point("TOPRIGHT", TukuiMinimap, "BOTTOMRIGHT", -23, -3)
+	end
+	if raidUtilityFrame then
+		local raidUtilityShowButton = _G["TukuiRaidUtilityShowButton"]
+		local raidUtilityCloseButton = _G["TukuiRaidUtilityCloseButton"]
 
 		if raidUtilityShowButton and raidUtilityCloseButton then
 			-- Anchoring function
 			local function SetAnchor(self)
 				if raidUtilityShowButton:IsShown() then
+					spec:ClearAllPoints()
 					spec:Point("TOPLEFT", raidUtilityShowButton, "BOTTOMLEFT", 0, -3)
 					spec:Point("TOPRIGHT", raidUtilityShowButton, "BOTTOMRIGHT", -23, -3)
 				elseif raidUtilityCloseButton:IsShown() then
+					spec:ClearAllPoints()
 					spec:Point("TOPLEFT", raidUtilityCloseButton, "BOTTOMLEFT", 0, -3)
 					spec:Point("TOPRIGHT", raidUtilityCloseButton, "BOTTOMRIGHT", -23, -3)
-				else
-					spec:Point("CENTER", UIParent, "CENTER", 0, 0)
 				end
 			end
 
 			raidUtilityShowButton:HookScript("OnShow", SetAnchor)
 			raidUtilityShowButton:HookScript("OnHide", SetAnchor)
+			--SetAnchor(raidUtilityShowButton)
 		end
 	end
 end
@@ -186,15 +184,18 @@ end
 spec.t = spec:CreateFontString(spec, "OVERLAY")
 spec.t:SetPoint("CENTER")
 spec.t:SetFont(C["media"].uffont, C.datatext.fontsize)
-
+-- events
 spec:RegisterEvent("PLAYER_TALENT_UPDATE")
 spec:RegisterEvent("PLAYER_ENTERING_WORLD")
 spec:RegisterEvent("CHARACTER_POINTS_CHANGED")
 spec:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
+spec:RegisterEvent("PLAYER_ENTERING_WORLD")
+spec:RegisterEvent("PLAYER_ENTERING_WORLD")
 spec:SetScript("OnEvent", function(self, event)
 	if event == "PLAYER_ENTERING_WORLD" then
 		AnchorSpec()
 		spec:UnregisterEvent("PLAYER_ENTERING_WORLD")
+		return
 	end
 	if not GetPrimaryTalentTree() then spec.t:SetText("No talents") return end
 	local tree1, tree2, tree3, Tree = ActiveTalents()
