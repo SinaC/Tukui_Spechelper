@@ -26,45 +26,31 @@ local MaxSets = 10
 
 -- functions
 local function HasDualSpec()
-	if GetNumTalentGroups() > 1 then
+	if GetNumSpecGroups() > 1 then
 		return true
 	else
 		return false
 	end
 end
 
-local function GetSecondaryTalentIndex()
-	return 3 - (GetActiveTalentGroup() or 1) --  2->1  1->2
+local function GetSecondarySpecIndex()
+	return 3 - (GetActiveSpecGroup() or 1) --  2->1  1->2
 end
 
-local function ActiveTalents()
-	local tree1 = select(5, GetTalentTabInfo(1))
-	local tree2 = select(5, GetTalentTabInfo(2))
-	local tree3 = select(5, GetTalentTabInfo(3))
-	local Tree = GetPrimaryTalentTree(false, false, GetActiveTalentGroup())
-	return tree1, tree2, tree3, Tree
+local function GetCurrentSpec()
+	local index = GetSpecialization(false, false, GetActiveSpecGroup())
+	local name = index and select(2, GetSpecializationInfo(index))
+	return index, name
 end	
 
-local function UnactiveTalents()
-	local secondaryIndex = GetSecondaryTalentIndex()
-	local sTree1 = select(5, GetTalentTabInfo(1, false, false, secondaryIndex))
-	local sTree2 = select(5, GetTalentTabInfo(2, false, false, secondaryIndex))
-	local sTree3 = select(5, GetTalentTabInfo(3, false, false, secondaryIndex))
-	local sTree = GetPrimaryTalentTree(false, false, secondaryIndex)
-	return sTree1, sTree2, sTree3, sTree
-end
-
-local function HasUnactiveTalents()
-	local sTree = GetPrimaryTalentTree(false, false, GetSecondaryTalentIndex())
-	if sTree == nil then
-		return false
-	else
-		return true
-	end
+local function GetSecondarySpec()
+	local index = GetSpecialization(false, false, GetSecondarySpecIndex())
+	local name = index and select(2, GetSpecializationInfo(index))
+	return index, name
 end
 
 local function AutoGear(set1, set2)
-	if GetActiveTalentGroup() == 1 then
+	if GetActiveSpecGroup() == 1 then
 		local name1 = GetEquipmentSetInfo(set1)
 		if name1 then UseEquipmentSet(name1) end
 	else
@@ -133,7 +119,10 @@ end
 -- Spec
 -----------
 local spec = CreateFrame("Button", "Tukui_Spechelper", UIParent)
-spec:CreatePanel("Default", 10, 20, "TOPRIGHT", UIParent, "TOPRIGHT", -32, -212)
+--spec:CreatePanel("Default", 10, 20, "TOPRIGHT", UIParent, "TOPRIGHT", -32, -212)
+spec:SetTemplate()
+spec:Size(10, 20)
+spec:Point("TOPRIGHT", UIParent, "TOPRIGHT", -32, -212)
 
 -- Anchoring
 -- if TukuiRaidUtilityShowButton is shown, anchor it
@@ -197,21 +186,19 @@ spec:SetScript("OnEvent", function(self, event)
 		spec:UnregisterEvent("PLAYER_ENTERING_WORLD")
 		return
 	end
-	if not GetPrimaryTalentTree() then spec.t:SetText("No talents") return end
-	local tree1, tree2, tree3, Tree = ActiveTalents()
-	local name = select(2, GetTalentTabInfo(Tree))
+	if not GetSpecialization() then spec.t:SetText("No talents") return end
+	local specIndex, name = GetCurrentSpec()
 	if not name then return end
-	spec.t:SetText(name.." "..panelcolor..tree1.."/"..tree2.."/"..tree3)
+	spec.t:SetText(name)
 
 	if HasDualSpec() then
-		if HasUnactiveTalents() then
-			local sTree1, sTree2, sTree3, sTree = UnactiveTalents()
-			local sName = select(2, GetTalentTabInfo(sTree))
-			spec:SetScript("OnEnter", function() spec.t:SetText(cm..sName.." "..panelcolor..sTree1.."/"..sTree2.."/"..sTree3) end)
-			spec:SetScript("OnLeave", function() spec.t:SetText(name.." "..panelcolor..tree1.."/"..tree2.."/"..tree3) end)
+		local secondarySpecIndex, secondarySpecName = GetSecondarySpec()
+		if secondarySpecIndex ~= nil then
+			spec:SetScript("OnEnter", function() spec.t:SetText(cm..secondarySpecName) end)
+			spec:SetScript("OnLeave", function() spec.t:SetText(name) end)
 		else
 			spec:SetScript("OnEnter", function() spec.t:SetText(cm.."No talents") end)
-			spec:SetScript("OnLeave", function() spec.t:SetText(name.." "..panelcolor..tree1.."/"..tree2.."/"..tree3) end)
+			spec:SetScript("OnLeave", function() spec.t:SetText(name) end)
 		end
 	end
 	--end
@@ -221,11 +208,11 @@ spec:SetScript("OnClick", function(self)
 	if IsModifierKeyDown() then
 		ToggleTalentFrame()
 	else
-		local i = GetActiveTalentGroup()
+		local i = GetActiveSpecGroup()
 		if i == 1 then
-			SetActiveTalentGroup(2)
+			SetActiveSpecGroup(2)
 		elseif i == 2 then
-			SetActiveTalentGroup(1)
+			SetActiveSpecGroup(1)
 		end
 	end
 end)
@@ -238,7 +225,10 @@ end
 -- Move UI
 ------------
 local mui = CreateFrame("Button", nil, spec, "SecureActionButtonTemplate")
-mui:CreatePanel("Default", 48, 19, "TOPLEFT", spec, "BOTTOMLEFT", 0, -3)
+--mui:CreatePanel("Default", 48, 19, "TOPLEFT", spec, "BOTTOMLEFT", 0, -3)
+mui:SetTemplate()
+mui:Size(48+29+3, 19)
+mui:Point("TOPLEFT", spec, "BOTTOMLEFT", 0, -3)
 mui:Hide()
 mui.t = mui:CreateFontString(nil, "OVERLAY")
 mui.t:SetPoint("CENTER")
@@ -254,7 +244,10 @@ mui:SetAttribute("macrotext", "/moveui")
 -- Key Binds
 ------------
 local binds = CreateFrame("Button", nil, mui, "SecureActionButtonTemplate")
-binds:CreatePanel("Default", 30, 19, "LEFT", mui, "RIGHT", 3, 0)
+--binds:CreatePanel("Default", 30, 19, "LEFT", mui, "RIGHT", 3, 0)
+binds:SetTemplate()
+binds:Size(30+28+3, 19)
+binds:Point("LEFT", mui, "RIGHT", 3, 0)
 
 binds.t = binds:CreateFontString(nil, "OVERLAY")
 binds.t:SetPoint("CENTER")
@@ -266,58 +259,81 @@ binds:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.m
 binds:SetAttribute("type", "macro")
 binds:SetAttribute("macrotext", "/bindkey")
 
----------------
--- Heal layout
----------------
-local heal = CreateFrame("Button", nil, mui, "SecureActionButtonTemplate")
-heal:CreatePanel("Default", 29, 19, "LEFT", binds, "RIGHT", 3, 0)
+-- ---------------
+-- -- Heal layout
+-- ---------------
+-- local heal = CreateFrame("Button", nil, mui, "SecureActionButtonTemplate")
+-- --heal:CreatePanel("Default", 29, 19, "LEFT", binds, "RIGHT", 3, 0)
+-- heal:SetTemplate()
+-- heal:Size(29, 19)
+-- heal:Point("LEFT", binds, "RIGHT", 3, 0)
 
-heal.t = heal:CreateFontString(nil, "OVERLAY")
-heal.t:SetPoint("CENTER")
-heal.t:SetFont(C["media"].uffont, C.datatext.fontsize)
-heal.t:SetText("HEAL")
+-- heal.t = heal:CreateFontString(nil, "OVERLAY")
+-- heal.t:SetPoint("CENTER")
+-- heal.t:SetFont(C["media"].uffont, C.datatext.fontsize)
+-- heal.t:SetText("HEAL")
 
-heal:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(hoverovercolor)) end)
-heal:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.media.bordercolor)) end)
-heal:SetAttribute("type", "macro")
-heal:SetAttribute("macrotext", "/heal")
+-- heal:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(hoverovercolor)) end)
+-- heal:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.media.bordercolor)) end)
+-- heal:SetAttribute("type", "macro")
+-- heal:SetAttribute("macrotext", "/heal")
 
---------------
--- DPS layout
---------------
-local dps = CreateFrame("Button", nil, mui, "SecureActionButtonTemplate")
-dps:CreatePanel("Default", 28, 19, "LEFT", heal, "RIGHT", 3, 0)
-dps.t = dps:CreateFontString(nil, "OVERLAY")
-dps.t:SetPoint("CENTER")
-dps.t:SetFont(C["media"].uffont, C.datatext.fontsize)
-dps.t:SetText("DPS")
+-- --------------
+-- -- DPS layout
+-- --------------
+-- local dps = CreateFrame("Button", nil, mui, "SecureActionButtonTemplate")
+-- --dps:CreatePanel("Default", 28, 19, "LEFT", heal, "RIGHT", 3, 0)
+-- dps:SetTemplate()
+-- dps:Size(28, 19)
+-- dps:Point("LEFT", heal, "RIGHT", 3, 0)
 
-dps:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(hoverovercolor)) end)
-dps:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.media.bordercolor)) end)
-dps:SetAttribute("type", "macro")
-dps:SetAttribute("macrotext", "/dps")
+-- dps.t = dps:CreateFontString(nil, "OVERLAY")
+-- dps.t:SetPoint("CENTER")
+-- dps.t:SetFont(C["media"].uffont, C.datatext.fontsize)
+-- dps.t:SetText("DPS")
+
+-- dps:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(hoverovercolor)) end)
+-- dps:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.media.bordercolor)) end)
+-- dps:SetAttribute("type", "macro")
+-- dps:SetAttribute("macrotext", "/dps")
 
 ------------------
 -- Gear switching
 ------------------
 if EnableGear == true then
-	local gearSets = CreateFrame("Frame", nil, dps)
+	local gearSets = CreateFrame("Frame", nil, binds)
 	for i = 1, MaxSets do
-		gearSets[i] = CreateFrame("Button", nil, dps)
-		gearSets[i]:CreatePanel("Default", 19, 19, "CENTER", dps, "CENTER", 0, 0)
+		gearSets[i] = CreateFrame("Button", nil, binds)
+		--gearSets[i]:CreatePanel("Default", 19, 19, "CENTER", dps, "CENTER", 0, 0)
+		gearSets[i]:SetTemplate()
+		gearSets[i]:Size(19, 19)
 
 		if i == 1 then
-			gearSets[i]:Point("TOPRIGHT", dps, "BOTTOMRIGHT", 0, -3)
+			gearSets[i]:Point("TOPRIGHT", binds, "BOTTOMRIGHT", 0, -3)
 		else
-			gearSets[i]:SetPoint("BOTTOMRIGHT", gearSets[i-1], "BOTTOMLEFT", -3, 0)
+			gearSets[i]:Point("BOTTOMRIGHT", gearSets[i-1], "BOTTOMLEFT", -3, 0)
 		end
 		gearSets[i].texture = gearSets[i]:CreateTexture(nil, "BORDER")
 		gearSets[i].texture:SetTexCoord(0.08, 0.92, 0.08, 0.92)
 		gearSets[i].texture:SetPoint("TOPLEFT", gearSets[i] ,"TOPLEFT", 2, -2)
 		gearSets[i].texture:SetPoint("BOTTOMRIGHT", gearSets[i] ,"BOTTOMRIGHT", -2, 2)
 
-		gearSets[i]:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(hoverovercolor)) end)
-		gearSets[i]:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.media.bordercolor)) end)
+		-- gearSets[i]:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(hoverovercolor)) end)
+		-- gearSets[i]:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.media.bordercolor)) end)
+		gearSets[i]:SetScript("OnEnter", function(self) 
+			self:SetBackdropBorderColor(unpack(hoverovercolor))
+
+			local name = GetEquipmentSetInfo(i)
+			GameTooltip:SetOwner(self, "ANCHOR_LEFT")
+			GameTooltip:ClearLines()
+			GameTooltip:AddLine(name, 1, 1, 1)
+			GameTooltip:Show()
+		end)
+		gearSets[i]:SetScript("OnLeave", function(self)
+			self:SetBackdropBorderColor(unpack(C.media.bordercolor))
+
+			GameTooltip:Hide()
+		end)
 	end
 	gearSets:RegisterEvent("PLAYER_ENTERING_WORLD")
 	gearSets:RegisterEvent("EQUIPMENT_SETS_CHANGED")
@@ -358,7 +374,10 @@ end
 -- Toggle Button
 ----------------
 local toggle = CreateFrame("Button", nil, spec)
-toggle:CreatePanel("Default", 20, 20, "TOPLEFT", spec, "TOPRIGHT", 3, 0)
+--toggle:CreatePanel("Default", 20, 20, "TOPLEFT", spec, "TOPRIGHT", 3, 0)
+toggle:SetTemplate()
+toggle:Size(20, 20)
+toggle:Point("TOPLEFT", spec, "TOPRIGHT", 3, 0)
 
 toggle.t = toggle:CreateFontString(nil, "OVERLAY")
 toggle.t:SetPoint("CENTER")

@@ -1,5 +1,5 @@
-## Interface: 40200
-## Version: 1.61
+## Interface: 50001
+## Version: 1.7
 ## Author: Epic
 ## Editor: SinaC
 ## Title: |cffC495DDTukui|r Spec Helper
