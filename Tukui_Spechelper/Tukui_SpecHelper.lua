@@ -118,7 +118,7 @@ end
 -----------
 -- Spec
 -----------
-local spec = CreateFrame("Button", "Tukui_Spechelper", UIParent)
+local spec = CreateFrame("Button", "Tukui_Spechelper", TukuiPetBattleHider)
 --spec:CreatePanel("Default", 10, 20, "TOPRIGHT", UIParent, "TOPRIGHT", -32, -212)
 spec:SetTemplate()
 spec:Size(10, 20)
@@ -174,17 +174,12 @@ spec.t = spec:CreateFontString(spec, "OVERLAY")
 spec.t:SetPoint("CENTER")
 spec.t:SetFont(C["media"].uffont, C.datatext.fontsize)
 -- events
-spec:RegisterEvent("PLAYER_TALENT_UPDATE")
 spec:RegisterEvent("PLAYER_ENTERING_WORLD")
-spec:RegisterEvent("CHARACTER_POINTS_CHANGED")
-spec:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
-spec:RegisterEvent("PLAYER_ENTERING_WORLD")
-spec:RegisterEvent("PLAYER_ENTERING_WORLD")
+spec:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
 spec:SetScript("OnEvent", function(self, event)
 	if event == "PLAYER_ENTERING_WORLD" then
 		AnchorSpec()
 		spec:UnregisterEvent("PLAYER_ENTERING_WORLD")
-		return
 	end
 	if not GetSpecialization() then spec.t:SetText("No talents") return end
 	local specIndex, name = GetCurrentSpec()
