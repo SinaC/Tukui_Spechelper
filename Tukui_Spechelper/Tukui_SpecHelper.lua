@@ -1,6 +1,8 @@
 -----------------------------------------------
 -- Spec Helper, by EPIC edited by SinaC
 -----------------------------------------------
+-- TODO: right-click on a equipment set icon assign it as default set for current spec
+
 local T, C, L = unpack(Tukui) -- Import: T - functions, constants, variables; C - config; L - locales
 
 -- colors
@@ -60,7 +62,7 @@ local function AutoGear(set1, set2)
 end
 
 local function SpecChangeCastbar(self)
-	local specbar = CreateFrame("StatusBar", nil, UIParent)
+	local specbar = CreateFrame("StatusBar", nil, TukuiPetBattleHider)
 	specbar:Point("TOPLEFT", self, "BOTTOMLEFT", 0, -3)
 	specbar:Point("TOPRIGHT", self, "BOTTOMRIGHT", 23, -3)
 	specbar:Height(19)
@@ -145,27 +147,57 @@ local function AnchorSpec()
 		spec:Point("TOPRIGHT", TukuiMinimap, "BOTTOMRIGHT", -23, -3)
 	end
 	if raidUtilityFrame then
+		-- local raidUtilityShowButton = _G["TukuiRaidUtilityShowButton"]
+		-- local raidUtilityCloseButton = _G["TukuiRaidUtilityCloseButton"]
+
+		-- if raidUtilityShowButton and raidUtilityCloseButton then
+			-- -- Anchoring function
+			-- local function SetAnchor(self)
+				-- if raidUtilityShowButton:IsShown() then
+					-- spec:ClearAllPoints()
+					-- spec:Point("TOPLEFT", raidUtilityShowButton, "BOTTOMLEFT", 0, -3)
+					-- spec:Point("TOPRIGHT", raidUtilityShowButton, "BOTTOMRIGHT", -23, -3)
+				-- elseif raidUtilityCloseButton:IsShown() then
+					-- spec:ClearAllPoints()
+					-- spec:Point("TOPLEFT", raidUtilityCloseButton, "BOTTOMLEFT", 0, -3)
+					-- spec:Point("TOPRIGHT", raidUtilityCloseButton, "BOTTOMRIGHT", -23, -3)
+				-- end
+			-- end
+
+			-- raidUtilityShowButton:HookScript("OnShow", SetAnchor)
+			-- raidUtilityShowButton:HookScript("OnHide", SetAnchor)
+			-- --SetAnchor(raidUtilityShowButton)
+		-- end
 		local raidUtilityShowButton = _G["TukuiRaidUtilityShowButton"]
 		local raidUtilityCloseButton = _G["TukuiRaidUtilityCloseButton"]
-
-		if raidUtilityShowButton and raidUtilityCloseButton then
-			-- Anchoring function
-			local function SetAnchor(self)
-				if raidUtilityShowButton:IsShown() then
-					spec:ClearAllPoints()
-					spec:Point("TOPLEFT", raidUtilityShowButton, "BOTTOMLEFT", 0, -3)
-					spec:Point("TOPRIGHT", raidUtilityShowButton, "BOTTOMRIGHT", -23, -3)
-				elseif raidUtilityCloseButton:IsShown() then
-					spec:ClearAllPoints()
-					spec:Point("TOPLEFT", raidUtilityCloseButton, "BOTTOMLEFT", 0, -3)
-					spec:Point("TOPRIGHT", raidUtilityCloseButton, "BOTTOMRIGHT", -23, -3)
-				end
+		local function OnShow(self)
+--print("OnShow")
+			spec:ClearAllPoints()
+			if raidUtilityCloseButton:IsShown() then
+				spec:Point("TOPLEFT", raidUtilityCloseButton, "BOTTOMLEFT", 0, -3)
+				spec:Point("TOPRIGHT", raidUtilityCloseButton, "BOTTOMRIGHT", -23, -3)
+			else
+				spec:Point("TOPLEFT", raidUtilityShowButton, "BOTTOMLEFT", 0, -3)
+				spec:Point("TOPRIGHT", raidUtilityShowButton, "BOTTOMRIGHT", -23, -3)
 			end
-
-			raidUtilityShowButton:HookScript("OnShow", SetAnchor)
-			raidUtilityShowButton:HookScript("OnHide", SetAnchor)
-			--SetAnchor(raidUtilityShowButton)
 		end
+		local function OnHide(self)
+--print("OnHide")
+			-- spec:ClearAllPoints()
+			-- spec:Point("TOPLEFT", raidUtilityCloseButton, "BOTTOMLEFT", 0, -3)
+			-- spec:Point("TOPRIGHT", raidUtilityCloseButton, "BOTTOMRIGHT", -23, -3)
+			if TukuiMinimapStatsLeft then
+				spec:ClearAllPoints()
+				spec:Point("TOPLEFT", TukuiMinimapStatsLeft, "BOTTOMLEFT", 0, -3)
+				spec:Point("TOPRIGHT", TukuiMinimapStatsRight, "BOTTOMRIGHT", -23, -3)
+			elseif TukuiMinimap then
+				spec:ClearAllPoints()
+				spec:Point("TOPLEFT", TukuiMinimap, "BOTTOMLEFT", 0, -3)
+				spec:Point("TOPRIGHT", TukuiMinimap, "BOTTOMRIGHT", -23, -3)
+			end
+		end
+		raidUtilityShowButton:HookScript("OnShow", OnShow)
+		raidUtilityShowButton:HookScript("OnHide", OnHide)
 	end
 end
 
@@ -355,7 +387,7 @@ if EnableGear == true then
 	end)
 
 	if AutoGearSwap == true then
-		local gearsetfunc = CreateFrame("Frame", "gearSetfunc", UIParent)
+		local gearsetfunc = CreateFrame("Frame", "gearSetfunc", TukuiPetBattleHider)
 
 		gearsetfunc:RegisterEvent("PLAYER_ENTERING_WORLD")
 		gearsetfunc:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
