@@ -19,9 +19,11 @@ local hoverColor = {.4, .4, .4}
 local plusTextColor = "|cff319f1b"
 local minusTextColor = "|cff9a1212"
 local secondaryTextColor = "|cff9a1212"
+local autoGearBorderColor = T.UnitColor.class[T.myclass]
 
 -- settings
-local MaxSets = 10 -- TODO: find constants in Blizzard's code
+local maxSets = 10 -- TODO: find constants in Blizzard's code
+local autoGearForActiveSpec = 0
 
 -- helpers
 local function HasDualSpec() -- return if player has learned dual spec
@@ -202,32 +204,36 @@ binds:SetAttribute("macrotext", "/bindkey")
 -- tooltip
 local inToolTip = false
 local function UpdateGearSetTooltip(self)
-	if inToolTip then
-		if self.setName then
-			self:SetBackdropBorderColor(unpack(hoverColor))
-			GameTooltip:SetOwner(self, "ANCHOR_LEFT")
-			GameTooltip:ClearLines()
-			GameTooltip:AddDoubleLine(self.setName, L.spechelper_CLICKTOEQUIP, 1, 1, 1, 1, 1, 1)
-			local found = false
-			for autoGearIndex, autoGearSetName in pairs(TukuiSpecHelperDataPerCharacter.autoGearSet) do
-				if autoGearSetName == self.setName then
-					local _, specName = GetSpec(autoGearIndex)
-					GameTooltip:AddDoubleLine(L.spechelper_AUTOGEAR, specName, 1, 1, 1, 1, 1, 1)
-					found = true
-					break
+	if self.setName then
+		GameTooltip:SetOwner(self, "ANCHOR_LEFT")
+		GameTooltip:ClearLines()
+		GameTooltip:AddDoubleLine(self.setName, L.spechelper_CLICKTOEQUIP, 1, 1, 1, 1, 1, 1)
+		local found = false
+		-- concatenate spec linked to this gear button
+		local specs = ""
+		for specIndex, autoGearSetName in pairs(TukuiSpecHelperDataPerCharacter.autoGearSet) do
+			if autoGearSetName == self.setName then
+				local _, specName = GetSpec(specIndex)
+				if found then
+					specs = specs .. ","
 				end
+				specs = specs .. specName
+				found = true
 			end
-			if not found then
-				local _, specName = GetCurrentSpec()
-				GameTooltip:AddDoubleLine(L.spechelper_CLICKTOAUTOGEAR, specName, 1, 1, 1, 1, 1, 1)
-			end
-			GameTooltip:Show()
 		end
+		-- display specs or help
+		if found then
+			GameTooltip:AddDoubleLine(L.spechelper_AUTOGEAR, specs, 1, 1, 1, 1, 1, 1)
+		else
+			local _, specName = GetCurrentSpec()
+			GameTooltip:AddDoubleLine(L.spechelper_CLICKTOAUTOGEAR, specName, 1, 1, 1, 1, 1, 1)
+		end
+		GameTooltip:Show()
 	end
 end
 -- frames
 local gearSets = CreateFrame("Frame", nil, binds)
-for i = 1, MaxSets do
+for i = 1, maxSets do
 	gearSets[i] = CreateFrame("Button", nil, binds)
 	gearSets[i]:SetTemplate()
 	gearSets[i]:Size(19, 19)
@@ -243,19 +249,33 @@ for i = 1, MaxSets do
 	gearSets[i]:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 	gearSets[i]:SetScript("OnEnter", function(self)
 		inToolTip = true
+		self:SetBackdropBorderColor(unpack(hoverColor))
 		UpdateGearSetTooltip(self)
 	end)
 	gearSets[i]:SetScript("OnLeave", function(self)
 		inToolTip = false
-		self:SetBackdropBorderColor(unpack(C.media.bordercolor))
+		if i == autoGearForActiveSpec then
+			self:SetBackdropBorderColor(unpack(autoGearBorderColor))
+		else
+			self:SetBackdropBorderColor(unpack(C.media.bordercolor))
+		end
 		GameTooltip:Hide()
 	end)
 	gearSets[i]:SetScript("OnClick", function(self, button, down)
 		if not self.setName then return end
 		if button == "RightButton" then -- right-click -> set as autogear
-			local currentSpec = GetActiveSpecGroup()
-			TukuiSpecHelperDataPerCharacter.autoGearSet[currentSpec] = self.setName
-			UpdateGearSetTooltip(self)
+			local activeSpec = GetActiveSpecGroup()
+			if TukuiSpecHelperDataPerCharacter.autoGearSet[activeSpec] ~= self.setName then
+				TukuiSpecHelperDataPerCharacter.autoGearSet[activeSpec] = self.setName
+				if 0 ~= autoGearForActiveSpec then
+					gearSets[autoGearForActiveSpec]:SetBackdropBorderColor(unpack(C.media.bordercolor)) -- reset backdrop border color of previous autogear
+				end
+				autoGearForActiveSpec = i
+				self:SetBackdropBorderColor(unpack(autoGearBorderColor)) -- set backdrop of new autogear
+				if inToolTip then
+					UpdateGearSetTooltip(self)
+				end
+			end
 		end
 		UseEquipmentSet(self.setName)
 	end)
@@ -278,19 +298,20 @@ gearSets:SetScript("OnEvent", function(self, event, arg1)
 		self:UnregisterEvent("PLAYER_ENTERING_WORLD") -- fire only once
 	end
 	-- update gearSet visibility
-	local numSets = math.min(GetNumEquipmentSets(), MaxSets)
+	local numSets = math.min(GetNumEquipmentSets(), maxSets)
 	for i = 1, numSets, 1 do
 		local name, icon = GetEquipmentSetInfo(i)
 		gearSets[i].setName = name
 		gearSets[i].texture:SetTexture(icon)
+		gearSets[i]:SetBackdropBorderColor(unpack(C.media.bordercolor))
 		gearSets[i]:Show()
 	end
-	for i = numSets+1, MaxSets, 1 do
+	for i = numSets+1, maxSets, 1 do
 		gearSets[i]:Hide()
 	end
 	-- update autoGearSet
 	if TukuiSpecHelperDataPerCharacter.autoGearSet then
-		for index, autoGearSetName in pairs(TukuiSpecHelperDataPerCharacter.autoGearSet) do
+		for specIndex, autoGearSetName in pairs(TukuiSpecHelperDataPerCharacter.autoGearSet) do
 			local found = false
 			for i = 1, numSets, 1 do
 				local name = GetEquipmentSetInfo(i)
@@ -300,7 +321,7 @@ gearSets:SetScript("OnEvent", function(self, event, arg1)
 				end
 			end
 			if not found then
-				TukuiSpecHelperDataPerCharacter.autoGearSet[index] = nil
+				TukuiSpecHelperDataPerCharacter.autoGearSet[specIndex] = nil
 			end
 		end
 	end
@@ -314,8 +335,18 @@ autoGearSwapHandler:SetScript("OnEvent", function(self, event)
 		self:UnregisterEvent("PLAYER_ENTERING_WORLD")
 	end
 	local activeSpec = GetActiveSpecGroup()
-	if TukuiSpecHelperDataPerCharacter.autoGearSet[activeSpec] then -- autogear for active spec
-		UseEquipmentSet(TukuiSpecHelperDataPerCharacter.autoGearSet[activeSpec])
+	local setNameForActiveSpec = TukuiSpecHelperDataPerCharacter.autoGearSet[activeSpec]
+	if setNameForActiveSpec then -- autogear for active spec
+		local numSets = math.min(GetNumEquipmentSets(), maxSets)
+		for i = 1, numSets, 1 do
+			if gearSets[i].setName == setNameForActiveSpec then
+				autoGearForActiveSpec = i
+				gearSets[i]:SetBackdropBorderColor(unpack(autoGearBorderColor)) -- set backdrop of current autogear
+			else
+				gearSets[i]:SetBackdropBorderColor(unpack(C.media.bordercolor)) -- reset backdrop of other sets
+			end
+		end
+		UseEquipmentSet(setNameForActiveSpec)
 	end
 end)
 
