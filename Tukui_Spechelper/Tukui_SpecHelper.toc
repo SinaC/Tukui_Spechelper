@@ -1,0 +1,14 @@
+## Interface: 50001
+## Version: 2.0
+## Author: Epic
+## Editor: SinaC
+## Title: |cffC495DDTukui|r Spec Helper
+## Notes: Helps switch specs and gear!
+## URL: https://github.com/SinaC/Tukui_SpecHelper
+## RequiredDeps: Tukui
+## SavedVariablesPerCharacter: TukuiSpecHelperDataPerCharacter
+
+locales\english.lua
+locales\french.lua
+core.lua
+
