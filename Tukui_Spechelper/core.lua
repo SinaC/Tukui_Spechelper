@@ -331,6 +331,7 @@ local autoGearSwapHandler = CreateFrame("Frame")
 autoGearSwapHandler:RegisterEvent("PLAYER_ENTERING_WORLD")
 autoGearSwapHandler:RegisterUnitEvent("PLAYER_SPECIALIZATION_CHANGED", "player")
 autoGearSwapHandler:SetScript("OnEvent", function(self, event)
+	if InCombatLockdown() then return end -- do nothing if in combat (PLAYER_SPECIALIZATION_CHANGED is called when player gains a level which can happen while in combat)
 	if event == "PLAYER_ENTERING_WORLD" then
 		self:UnregisterEvent("PLAYER_ENTERING_WORLD")
 	end
