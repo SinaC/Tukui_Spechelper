@@ -244,8 +244,7 @@ for i = 1, maxSets do
 	end
 	gearSets[i].texture = gearSets[i]:CreateTexture(nil, "BORDER")
 	gearSets[i].texture:SetTexCoord(0.08, 0.92, 0.08, 0.92)
-	gearSets[i].texture:SetPoint("TOPLEFT", gearSets[i], "TOPLEFT", 2, -2)
-	gearSets[i].texture:SetPoint("BOTTOMRIGHT", gearSets[i], "BOTTOMRIGHT", -2, 2)
+	gearSets[i].texture:SetInside()
 	gearSets[i]:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 	gearSets[i]:SetScript("OnEnter", function(self)
 		inToolTip = true
@@ -329,12 +328,13 @@ end)
 -- autogear
 local autoGearSwapHandler = CreateFrame("Frame")
 autoGearSwapHandler:RegisterEvent("PLAYER_ENTERING_WORLD")
-autoGearSwapHandler:RegisterUnitEvent("PLAYER_SPECIALIZATION_CHANGED", "player")
+-- Got rid of the UnregisterEvent for this so it can detect zoning into instances/raids.
+-- The only other viable event would make it equip the set each actual zone change.
+-- Entering World Triggers on world changes (Portals of any type/Loading screen)
+autoGearSwapHandler:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
+-- This is a better event to use as it triggers once the change has been completed. Does not get called during combat.
 autoGearSwapHandler:SetScript("OnEvent", function(self, event)
-	if InCombatLockdown() then return end -- do nothing if in combat (PLAYER_SPECIALIZATION_CHANGED is called when player gains a level which can happen while in combat)
-	if event == "PLAYER_ENTERING_WORLD" then
-		self:UnregisterEvent("PLAYER_ENTERING_WORLD")
-	end
+	local inInstance, instanceType = IsInInstance()
 	local activeSpec = GetActiveSpecGroup()
 	local setNameForActiveSpec = TukuiSpecHelperDataPerCharacter.autoGearSet[activeSpec]
 	if setNameForActiveSpec then -- autogear for active spec
@@ -347,7 +347,9 @@ autoGearSwapHandler:SetScript("OnEvent", function(self, event)
 				gearSets[i]:SetBackdropBorderColor(unpack(C.media.bordercolor)) -- reset backdrop of other sets
 			end
 		end
-		UseEquipmentSet(setNameForActiveSpec)
+		if (event == "PLAYER_ENTERING_WORLD") then if not TukuiAutoGeared then UseEquipmentSet(setNameForActiveSpec) TukuiAutoGeared = true end end
+		if (instanceType == "party" or instanceType == "raid") then UseEquipmentSet(setNameForActiveSpec) end
+		if (event == "ACTIVE_TALENT_GROUP_CHANGED") then UseEquipmentSet(setNameForActiveSpec) end
 	end
 end)
 
@@ -375,3 +377,25 @@ toggle:SetScript("OnClick", function(self)
 		toggle.text:SetText(minusTextColor.."-")
 	end
 end)
+
+local function SpecHelperSpamFilter(self, event, msg, ...)
+	if strfind(msg, string.gsub(ERR_LEARN_ABILITY_S:gsub('%.', '%.'), '%%s', '(.*)')) then
+		return true
+	elseif strfind(msg, string.gsub(ERR_LEARN_SPELL_S:gsub('%.', '%.'), '%%s', '(.*)')) then
+		return true
+	elseif strfind(msg, string.gsub(ERR_SPELL_UNLEARNED_S:gsub('%.', '%.'), '%%s', '(.*)')) then
+		return true
+	elseif strfind("You have learned a new passive effect", "passive") then
+		return true
+	end
+    
+	return false, msg, ...
+end
+
+function EnableSpecHelperSpamFilter()
+	ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", SpecSwitcherSpamFilter)
+end
+
+function DisableSpecHelperSpamFilter()
+	ChatFrame_RemoveMessageEventFilter("CHAT_MSG_SYSTEM", SpecSwitcherSpamFilter)
+end
