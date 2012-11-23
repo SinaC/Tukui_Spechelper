@@ -398,7 +398,7 @@ local function SpecHelperSpamFilter(self, event, msg, ...)
 		return true
 	elseif strfind(msg, string.gsub(ERR_SPELL_UNLEARNED_S:gsub('%.', '%.'), '%%s', '(.*)')) then
 		return true
-	elseif strfind("You have learned a new passive effect", "passive") then -- TODO: location
+	elseif strfind(msg, string.gsub(ERR_LEARN_PASSIVE_S:gsub('%.', '%.'), '%%s', '(.*)')) then
 		return true
 	end
     
