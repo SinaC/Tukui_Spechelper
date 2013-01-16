@@ -320,13 +320,17 @@ gearSets:SetScript("OnEvent", function(self, event, arg1)
 					break
 				end
 			end
+			-- if not found then
+				-- TukuiSpecHelperDataPerCharacter.autoGearSet[specIndex] = nil
+			-- end
 			if not found then
-				TukuiSpecHelperDataPerCharacter.autoGearSet[specIndex] = nil
+				print("warning: "..ADDON_NAME.." set "..autoGetSetName.."  not found")
 			end
 		end
 	end
 end)
 -- autogear
+local autoGeared = false
 local autoGearSwapHandler = CreateFrame("Frame")
 autoGearSwapHandler:RegisterEvent("PLAYER_ENTERING_WORLD")
 -- Got rid of the UnregisterEvent for this so it can detect zoning into instances/raids.
@@ -351,8 +355,8 @@ autoGearSwapHandler:SetScript("OnEvent", function(self, event)
 			end
 		end
 		local use = false
-		if event == "PLAYER_ENTERING_WORLD" and not TukuiAutoGeared then
-			TukuiAutoGeared = true
+		if event == "PLAYER_ENTERING_WORLD" and not autoGeared then
+			autoGeared = true
 			use = true
 		end
 		if inInstance and (instanceType == "party" or instanceType == "raid") then use = true end
