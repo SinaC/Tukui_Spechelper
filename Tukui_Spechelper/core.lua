@@ -324,7 +324,7 @@ gearSets:SetScript("OnEvent", function(self, event, arg1)
 				-- TukuiSpecHelperDataPerCharacter.autoGearSet[specIndex] = nil
 			-- end
 			if not found then
-				print("warning: "..ADDON_NAME.." set "..autoGetSetName.."  not found")
+				print("warning: "..ADDON_NAME.." set "..autoGearSetName.."  not found")
 			end
 		end
 	end

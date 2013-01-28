@@ -1,5 +1,5 @@
 ## Interface: 50100
-## Version: 2.2.1
+## Version: 2.2.2
 ## Author: Epic
 ## Editor: SinaC
 ## Credits: Azilroka

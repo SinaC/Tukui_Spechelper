@@ -1,3 +1,6 @@
+2.2.2
+Typo
+
 2.2.1
 global variable removed
 display a warning with invalid set instead of delete it (sometimes, after a crash sets are not loaded correctly, with previous previous we would lose our config in this case)
