@@ -1,10 +1,5 @@
-<<<<<<< HEAD
-## Interface: 50300
-## Version: 2.4
-=======
-## Interface: 50200
-## Version: 2.3.1
->>>>>>> origin/master
+## Interface: 60000
+## Version: 3.0
 ## Author: Epic
 ## Editor: SinaC
 ## Credits: Azilroka

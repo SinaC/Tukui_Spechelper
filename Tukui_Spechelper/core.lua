@@ -14,12 +14,15 @@
 local ADDON_NAME, ns = ...
 local T, C, L = unpack(Tukui) -- Import: T - functions, constants, variables; C - config; L - locales
 
+local TukuiMaps = T.Maps
+local TukuiPanels = T.Panels
+
 -- colors
 local hoverColor = {.4, .4, .4}
 local plusTextColor = "|cff319f1b"
 local minusTextColor = "|cff9a1212"
 local secondaryTextColor = "|cff9a1212"
-local autoGearBorderColor = T.UnitColor.class[T.myclass]
+local autoGearBorderColor = T.Colors.class[T.MyClass]
 
 -- settings
 local maxSets = 10 -- TODO: find constants in Blizzard's code
@@ -62,12 +65,12 @@ end
 local function DefaultAnchor(spec)
 	-- Attach to minimap by default
 	spec:ClearAllPoints()
-	if TukuiMinimapStatsLeft then
-		spec:Point("TOPLEFT", TukuiMinimapStatsLeft, "BOTTOMLEFT", 0, -3)
-		spec:Point("TOPRIGHT", TukuiMinimapStatsRight, "BOTTOMRIGHT", -23, -3)
-	elseif TukuiMinimap then
-		spec:Point("TOPLEFT", TukuiMinimap, "BOTTOMLEFT", 0, -3)
-		spec:Point("TOPRIGHT", TukuiMinimap, "BOTTOMRIGHT", -23, -3)
+	if TukuiPanels.MinimapDataTextOne and TukuiPanels.MinimapDataTextTwo then
+		spec:Point("TOPLEFT", TukuiPanels.MinimapDataTextOne, "BOTTOMLEFT", 0, -3)
+		spec:Point("TOPRIGHT", TukuiPanels.MinimapDataTextTwo, "BOTTOMRIGHT", -23, -3)
+	elseif TukuiMaps.Minimap then
+		spec:Point("TOPLEFT", TukuiMaps.Minimap, "BOTTOMLEFT", 0, -3)
+		spec:Point("TOPRIGHT", TukuiMaps.Minimap, "BOTTOMRIGHT", -23, -3)
 	end
 end
 local function AnchorSpec(spec)
@@ -105,14 +108,14 @@ local function AnchorSpec(spec)
 	end
 end
 -- frame
-local spec = CreateFrame("Button", "Tukui_Spechelper", TukuiPetBattleHider)
+local spec = CreateFrame("Button", "Tukui_Spechelper", TukuiPanels.PetBattleHider)
 spec:SetTemplate()
 spec:Size(10, 20) -- overwritten while anchoring
 DefaultAnchor(spec) -- anchor will be reset when entering world
 -- text
 spec.text = spec:CreateFontString(spec, "OVERLAY")
 spec.text:SetPoint("CENTER")
-spec.text:SetFont(C["media"].uffont, C.datatext.fontsize)
+spec.text:SetFont(C.Medias.Font, 8)
 -- events
 spec:RegisterEvent("PLAYER_ENTERING_WORLD")
 spec:RegisterUnitEvent("PLAYER_SPECIALIZATION_CHANGED", "player")
@@ -172,13 +175,13 @@ mui:Point("TOPLEFT", spec, "BOTTOMLEFT", 0, -3)
 mui:Hide()
 mui.text = mui:CreateFontString(nil, "OVERLAY")
 mui.text:SetPoint("CENTER")
-mui.text:SetFont(C["media"].uffont, C.datatext.fontsize)
+mui.text:SetFont(C.Medias.Font, 10)
 mui.text:SetText(L.spechelper_MOVEUI)
 
 mui:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(hoverColor)) end)
-mui:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.media.bordercolor)) end)
+mui:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.General.BorderColor)) end)
 mui:SetAttribute("type", "macro")
-mui:SetAttribute("macrotext", "/moveui")
+mui:SetAttribute("macrotext", "/tukui moveui")
 
 ------------
 -- Key Binds
@@ -190,11 +193,11 @@ binds:Point("LEFT", mui, "RIGHT", 3, 0)
 
 binds.text = binds:CreateFontString(nil, "OVERLAY")
 binds.text:SetPoint("CENTER")
-binds.text:SetFont(C["media"].uffont, C.datatext.fontsize)
+binds.text:SetFont(C.Medias.Font, 10)
 binds.text:SetText(L.spechelper_BIND)
 
 binds:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(hoverColor)) end)
-binds:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.media.bordercolor)) end)
+binds:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.General.BorderColor)) end)
 binds:SetAttribute("type", "macro")
 binds:SetAttribute("macrotext", "/bindkey")
 
@@ -303,7 +306,7 @@ gearSets:SetScript("OnEvent", function(self, event, arg1)
 		local name, icon = GetEquipmentSetInfo(i)
 		gearSets[i].setName = name
 		gearSets[i].texture:SetTexture(icon)
-		gearSets[i]:SetBackdropBorderColor(unpack(C.media.bordercolor))
+		gearSets[i]:SetBackdropBorderColor(unpack(C.General.BorderColor))
 		gearSets[i]:Show()
 	end
 	for i = numSets+1, maxSets, 1 do
@@ -351,7 +354,7 @@ autoGearSwapHandler:SetScript("OnEvent", function(self, event)
 				autoGearForActiveSpec = i
 				gearSets[i]:SetBackdropBorderColor(unpack(autoGearBorderColor)) -- set backdrop of current autogear
 			else
-				gearSets[i]:SetBackdropBorderColor(unpack(C.media.bordercolor)) -- reset backdrop of other sets
+				gearSets[i]:SetBackdropBorderColor(unpack(C.General.BorderColor)) -- reset backdrop of other sets
 			end
 		end
 		local use = false
@@ -377,10 +380,10 @@ toggle:Point("TOPLEFT", spec, "TOPRIGHT", 3, 0)
 
 toggle.text = toggle:CreateFontString(nil, "OVERLAY")
 toggle.text:SetPoint("CENTER")
-toggle.text:SetFont(C["media"].uffont, C.datatext.fontsize)
+toggle.text:SetFont(C.Medias.Font, 10)
 toggle.text:SetText(plusTextColor.."+|r")
 toggle:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(hoverColor)) end)
-toggle:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.media.bordercolor)) end)
+toggle:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.General.BorderColor)) end)
 
 toggle:SetScript("OnClick", function(self)
 	if mui:IsShown() then
