@@ -16,6 +16,7 @@ local T, C, L = unpack(Tukui) -- Import: T - functions, constants, variables; C 
 
 local TukuiMaps = T.Maps
 local TukuiPanels = T.Panels
+local TukuiMovers = T.Movers
 
 -- colors
 local hoverColor = {.4, .4, .4}
@@ -108,14 +109,16 @@ local function AnchorSpec(spec)
 	end
 end
 -- frame
-local spec = CreateFrame("Button", "Tukui_Spechelper", TukuiPanels.PetBattleHider)
+local spec = CreateFrame("Button", "TukuiSpechelper", UIParent)
+RegisterStateDriver(spec, "visibility", "[vehicleui][petbattle][overridebar] hide; show")
 spec:SetTemplate()
 spec:Size(10, 20) -- overwritten while anchoring
 DefaultAnchor(spec) -- anchor will be reset when entering world
+TukuiMovers:RegisterFrame(spec)
 -- text
 spec.text = spec:CreateFontString(spec, "OVERLAY")
 spec.text:SetPoint("CENTER")
-spec.text:SetFont(C.Medias.Font, 8)
+spec.text:SetFont(C.Medias.Font, 12)
 -- events
 spec:RegisterEvent("PLAYER_ENTERING_WORLD")
 spec:RegisterUnitEvent("PLAYER_SPECIALIZATION_CHANGED", "player")
@@ -175,7 +178,7 @@ mui:Point("TOPLEFT", spec, "BOTTOMLEFT", 0, -3)
 mui:Hide()
 mui.text = mui:CreateFontString(nil, "OVERLAY")
 mui.text:SetPoint("CENTER")
-mui.text:SetFont(C.Medias.Font, 10)
+mui.text:SetFont(C.Medias.Font, 12)
 mui.text:SetText(L.spechelper_MOVEUI)
 
 mui:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(hoverColor)) end)
@@ -193,7 +196,7 @@ binds:Point("LEFT", mui, "RIGHT", 3, 0)
 
 binds.text = binds:CreateFontString(nil, "OVERLAY")
 binds.text:SetPoint("CENTER")
-binds.text:SetFont(C.Medias.Font, 10)
+binds.text:SetFont(C.Medias.Font, 12)
 binds.text:SetText(L.spechelper_BIND)
 
 binds:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(hoverColor)) end)
@@ -380,7 +383,7 @@ toggle:Point("TOPLEFT", spec, "TOPRIGHT", 3, 0)
 
 toggle.text = toggle:CreateFontString(nil, "OVERLAY")
 toggle.text:SetPoint("CENTER")
-toggle.text:SetFont(C.Medias.Font, 10)
+toggle.text:SetFont(C.Medias.Font, 14)
 toggle.text:SetText(plusTextColor.."+|r")
 toggle:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(hoverColor)) end)
 toggle:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(unpack(C.General.BorderColor)) end)
